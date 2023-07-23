@@ -1,0 +1,57 @@
+INCLUDE options/options.makejail
+
+VAR --make-arg-env dwm_version=6.4
+
+CMD echo "======> Creating user 'dwm' <======"
+CMD pw useradd -n dwm -c "Dynamic Window Manager" -d /home/dwm -s /bin/sh
+CMD mkdir -p /home/dwm
+CMD chown dwm:dwm /home/dwm
+
+CMD echo "======> Installing dependencies ... <======"
+PKG fontconfig \
+    libX11 \
+    libXft \
+    libXinerama
+
+CMD echo "=======> Downloading DWM ... <======="
+CMD cd /tmp; fetch -q http://dl.suckless.org/dwm/dwm-${dwm_version}.tar.gz
+
+CMD echo "=======> Extracting ... <======"
+CMD mkdir -p /dwm
+CMD tar -C /dwm --strip-components=1 -xf /tmp/dwm-${dwm_version}.tar.gz
+CMD rm -f /tmp/dwm-${dwm_version}.tar.gz
+
+STOP
+
+STAGE create
+
+CMD --local xhost +
+
+STAGE custom:dwm_build
+
+ARG destdir=/
+
+CMD echo "======> Building and installing ... <======"
+CMD cd /dwm; \
+    make \
+        CC=clang \
+        FREETYPEINC=/usr/local/include/freetype2 \
+        PREFIX=/usr/local \
+        X11INC=/usr/local/include \
+        X11LIB=/usr/local/lib \
+        DESTDIR="${destdir}" \
+        install clean
+
+STAGE custom:dwm_open
+
+ARG display=:0
+
+ENV DISPLAY=${display}
+
+RAW if ! appjail cmd jexec "${APPJAIL_JAILNAME}" which -s dwm; then
+RAW     echo "Cannot found DWM. Please run 'dwm_build' custom stage." >&2
+RAW     exit 1
+RAW else
+        USER dwm
+        RUN dwm
+RAW fi

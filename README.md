@@ -22,7 +22,7 @@ START
 
 # Patches
 
-# Patch: config.def.h
+# Patch: config.def.h.diff
 CMD cd /dwm; patch -i config.def.h.diff
 CMD rm -f /dwm/config.def.h.diff
 # Patch: dwm-alpha-20230401-348f655.diff

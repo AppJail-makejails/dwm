@@ -40,11 +40,7 @@ CMD cd /dwm; \
 
 STAGE custom:dwm_open
 
-ARG display=:0
-
-CMD --local env "DISPLAY=${display}" xhost + > /dev/null
-
-ENV DISPLAY=${display}
+ENV DISPLAY=:0
 
 RAW if ! appjail cmd jexec "${APPJAIL_JAILNAME}" which -s dwm; then
 RAW     echo "Cannot found DWM. Please run 'dwm_build' custom stage." >&2

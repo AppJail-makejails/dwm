@@ -75,7 +75,8 @@ dwm can be executed using the `dwm_open` custom stage. xephyr is very useful for
 
 ```
 Xephyr -screen 900x640 -br -ac -noreset :1 &
-appjail run -s dwm_open -p display=:1 dwm
+xhost +
+appjail run -s dwm_open -V DISPLAY=:1 dwm
 ```
 
 If you need to get the files after compilation, use the `destdir` argument to a mounted host directory:
